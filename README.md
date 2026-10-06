@@ -1,42 +1,84 @@
-# Dynamic Permissive Traffic Signal Phasing Controller for Blind-Crest Intersections
+<div align="center">
 
-[![GitHub License](https://shields.io)](LICENSE)
-[![Simulation Platform](https://shields.io)](https://eclipse.dev)
-[![Python Version](https://shields.io)](https://python.org)
+# Dynamic FYA Crest Controller
 
-An intelligent, sensor-driven traffic control framework built to dynamically mitigate vehicle conflict points and structural sight-distance deficits at vertical crest curves operating under permissive **Flashing Yellow Arrow (FYA)** control logic.
+**Sensor-actuated phasing for blind-crest intersections.**<br>
+Detect the hidden vehicle. Override the permissive turn. Before the gap is accepted.
 
-## 📌 Project Overview & Origin
-Traditional Flashing Yellow Arrow (FYA) installations rely on the structural assumption that a left-turning driver possesses an unobstructed line of sight to accurately judge safe gaps in oncoming traffic. However, when paired with extreme vertical topography—such as a steep blind crest curve—this assumption fundamentally fails. Standard static signal timing loops cannot adapt to high-risk, non-compliant speeding vehicles ascending localized geometric obstructions.
+<br>
 
-This project introduces a localized, sensor-actuated controller that tracks real-time vehicle kinematics at the crest summit. By computing instantaneous **Time-to-Intersection (TTI)** boundaries against **AASHTO Stopping Sight Distance (SSD)** constraints, the script overrides dangerous permissive windows, shifting the system into a protected Red Arrow state to prevent high-speed collisions.
+![Status](https://img.shields.io/badge/status-in_development-F59E0B?style=flat-square)
+![Simulator](https://img.shields.io/badge/SUMO-TraCI-1F6FEB?style=flat-square)
+![Python](https://img.shields.io/badge/python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)
+![Paper](https://img.shields.io/badge/paper-LaTeX-008080?style=flat-square&logo=latex&logoColor=white)
 
-## 📐 Geometric Parameter Space (Real-World Case Study)
-The framework is explicitly modeled and mathematically calibrated using empirical geospatial profile metrics extracted from a high-risk institutional corridor in Montverde, Florida (N Hancock Rd):
-*   **Left-Turn Phase Elevation (\(Z_{turn}\)):** 42.92 m
-*   **Summit Crest Peak Elevation (\(Z_{crest}\)):** 48.66 m (Δ h = 5.74 m profile delta)
-*   **Impact Trajectory Coordinate (\(Z_{impact}\)):** 44.35 m
-*   **Corridor Posted Velocity Baseline:** 45 MPH (20.1 m/s)
-*   **Topographic Gradient Profile (G):** -7.0% Downhill Approach Grade
+[Problem](#the-problem) · [Approach](#approach) · [Model](#the-math) · [Hypotheses](#hypotheses) · [Case Study](#case-study) · [Structure](#repository-structure) · [Roadmap](#roadmap)
 
-## 🔬 Scientific Hypotheses
-*   **Primary Hypothesis (\(H_a\)):** \(\mu_{SAC} > \mu_{FYA}\)
-    The implementation of a localized, sensor-driven dynamic traffic signal controller will yield a statistically significant increase (p < 0.05) in the mean Time-to-Collision (\(\mu_{SAC}\)) compared to standard static Flashing Yellow Arrow operations (\(\mu_{FYA}\)), expanding the physical safety margin between conflicting trajectories.
-*   **Secondary Hypothesis (\(H_a\)):** The frequency of critical close-proximity conflicts (defined as TTC ≤ 1.5 s) will drop significantly under sensor-actuated loop parameters.
+</div>
 
-## 📁 Repository Structure
-```text
-dynamic-fya-crest-controller/
-│
-├── network/          # Spatial XML elements, junction properties, and elevation matrices (.net.xml)
-├── data_outputs/     # Statistical telemetry outputs containing vehicle trajectory log CSVs
-├── documentation/    # Comprehensive academic manuscript data and LaTeX source scripts
-├── core_logic.py     # Pure algorithmic testbed simulating AASHTO braking models and TTI checks
-└── README.md         # Academic landing documentation
+<br>
+
+## The problem
+
+A Flashing Yellow Arrow (FYA) assumes a left-turning driver can *see* oncoming traffic well enough to judge a gap. On a vertical crest curve, that assumption breaks: the hill hides the oncoming vehicle until it is too close to stop.
+
+A fixed timer cannot react to this. It has no idea whether the car cresting the hill is doing 45 mph or 65.
+
+## Approach
+
+A virtual sensor at the crest measures each oncoming vehicle's speed. The controller converts that into a **Time-to-Intersection (TTI)** and compares it to a safety threshold. If the gap is unsafe, the permissive FYA is withheld and the signal moves to a **protected red arrow**. Otherwise, normal FYA operation continues, so delay stays low.
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> Green
+    Green --> Yellow
+    Yellow --> FYA: permissive left
+    FYA --> RedArrow: TTI ≤ τ
+    FYA --> Red: phase ends
+    RedArrow --> Red: hold cleared
+    Red --> Green
 ```
 
-## 🛠️ System Requirements & Technical Stack
-*   **Operating System:** macOS (Optimized for Apple Silicon ARM architecture)
-*   **Simulation Suite:** Eclipse SUMO (Simulation of Urban MObility)
-*   **Control Interface:** TraCI (Traffic Control Interface) Python API Core Library
-*   **Mathematical Tooling:** `numpy`, `scipy.stats`, `matplotlib`
+## The math
+
+All geometry follows AASHTO conventions.
+
+**1. Sight-distance constraint** (crest curve, $S < L$)
+
+$$
+L = \frac{A\,S^{2}}{100\left(\sqrt{2h_1}+\sqrt{2h_2}\right)^{2}}
+$$
+
+With $h_1 = 1.08\ \text{m}$ (passenger car eye height) and $h_2 = 0.60\ \text{m}$ (object height), this reduces to $L \approx A S^2 / 658$.
+
+**2. Stopping sight distance**
+
+$$
+\mathrm{SSD} = 0.278\,v\,t_{pr} + \frac{v^{2}}{254\,(\mu \pm G)}
+$$
+
+The intersection is **blind** when available sight distance falls below SSD: $S_D < \mathrm{SSD}$.
+
+**3. Controller trigger**
+
+$$
+\mathrm{TTI} = \frac{d_{sensor}}{v(t)} \le \tau, \qquad \tau = t_{clear} + t_{buffer}
+$$
+
+**4. Safety metric**
+
+$$
+\mathrm{TTC}_i(t) = \frac{x_{lead}(t) - x_{follow}(t) - l_{lead}}{v_{follow}(t) - v_{lead}(t)}
+$$
+
+A critical conflict is any event with $\mathrm{TTC} \le 1.5\ \text{s}$.
+
+| Symbol | Meaning | Unit |
+|:--|:--|:--|
+| $A$ | Algebraic grade difference | % |
+| $S_D$ | Available sight distance | m |
+| $h_1,\ h_2$ | Driver eye height, object height | m |
+| $v(t)$ | Instantaneous speed at the sensor | m/s |
+| $d_{sensor}$ | Crest-to-intersection distance | m |
+| $\tau$ | Clearance time plus safety
