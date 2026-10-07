@@ -1,0 +1,13 @@
+<nodes xmlns:xsi="http://w3.org" xsi:noNamespaceSchemaLocation="http://dlr.de">
+    <!-- Center Intersection Node (Your Crash Spot) -->
+    <node id="center" x="0.0" y="0.0" z="42.92" type="traffic_light"/>
+
+    <!-- North Approach Nodes (The Dangerous Hill) -->
+    <node id="crest_summit" x="0.0" y="40.0" z="48.66" type="priority"/>
+    <node id="north_start"  x="0.0" y="150.0" z="45.74" type="priority"/>
+
+    <!-- Outer Corridor Boundaries -->
+    <node id="south" x="0.0"  y="-100.0" z="41.00" type="priority"/>
+    <node id="west"  x="-100.0" y="0.0"   z="42.92" type="priority"/>
+    <node id="east"  x="100.0"  y="0.0"   z="42.92" type="priority"/>
+</nodes>

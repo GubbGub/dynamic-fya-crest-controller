@@ -1,0 +1,20 @@
+<edges xmlns:xsi="http://w3.org" xsi:noNamespaceSchemaLocation="http://dlr.de">
+    <!-- North Approach Segment 1: Climbing up to the summit -->
+    <edge id="N2Crest" from="north_start" to="crest_summit" numLanes="2" speed="20.11"/>
+    <edge id="Crest2N" from="crest_summit" to="north_start" numLanes="2" speed="20.11"/>
+
+    <!-- North Approach Segment 2: Dropping sharply down the blind crest to the light -->
+    <edge id="Crest2Center" from="crest_summit" to="center" numLanes="2" speed="20.11"/>
+    <edge id="Center2Crest" from="center" to="crest_summit" numLanes="2" speed="20.11"/>
+
+    <!-- South Corridor Legs -->
+    <edge id="S2Center" from="south" to="center" numLanes="2" speed="20.11"/>
+    <edge id="Center2S" from="center" to="south" numLanes="2" speed="20.11"/>
+
+    <!-- East/West Crossroad Legs -->
+    <edge id="W2Center" from="west" to="center" numLanes="2" speed="20.11"/>
+    <edge id="Center2W" from="center" to="west" numLanes="2" speed="20.11"/>
+    
+    <edge id="E2Center" from="east" to="center" numLanes="2" speed="20.11"/>
+    <edge id="Center2E" from="center" to="east" numLanes="2" speed="20.11"/>
+</edges>
