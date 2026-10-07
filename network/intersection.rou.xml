@@ -1,0 +1,56 @@
+<routes xmlns:xsi="http://w3.org" xsi:noNamespaceSchemaLocation="http://dlr.de">
+    
+    <!-- ========================================== -->
+    <!-- FLEET DEFINITIONS (AASHTO PARAMETERS)     -->
+    <!-- ========================================== -->
+    
+    <!-- Low-Profile Sedan Class (e.g., Volkswagen Passat) -->
+    <!-- Low height profile creates maximum visual blockage behind the crest -->
+    <vType id="sedan" vClass="passenger" length="4.80" width="1.80" height="1.40" 
+           maxSpeed="20.11" speedDev="0.1" sigma="0.5" carFollowModel="IDM"/>
+
+    <!-- High-Profile Heavy Utility Class (e.g., GMC Sierra Truck) -->
+    <!-- Higher mass and braking requirements on the steep downhill gradient -->
+    <vType id="truck" vClass="truck" length="5.80" width="2.00" height="1.90" 
+           maxSpeed="20.11" speedDev="0.1" sigma="0.5" carFollowModel="IDM"/>
+
+    <!-- High-Risk Reckless/Speeding Class (The Accident Scenario) -->
+    <!-- Disregards the 45 MPH baseline, crossing the crest at 55-60 MPH -->
+    <vType id="speeding_truck" vClass="truck" length="5.80" width="2.00" height="1.90" 
+           maxSpeed="26.82" speedDev="0.0" sigma="0.2" carFollowModel="IDM" color="1,0,0"/>
+
+    <!-- Heavy Institutional School Transport Class -->
+    <vType id="school_bus" vClass="bus" length="12.00" width="2.50" height="3.20" 
+           maxSpeed="17.88" speedDev="0.05" sigma="0.7" carFollowModel="IDM"/>
+
+    <!-- ========================================== -->
+    <!-- EDGE ROUTE MAPS                            -->
+    <!-- ========================================== -->
+    
+    <!-- Oncoming Approach: Enters North, crests peak, heads through South corridor -->
+    <route id="oncoming_straight" edges="N2Crest Crest2Center Center2S"/>
+
+    <!-- Your Crash Path: Enters South, executes permissive left turn toward West -->
+    <route id="left_turn_path" edges="S2Center Center2W"/>
+
+    <!-- Crossroad Intersecting Flows -->
+    <route id="cross_east_west" edges="E2Center Center2W"/>
+    <route id="cross_west_east" edges="W2Center Center2E"/>
+
+    <!-- ========================================== -->
+    <!-- TRAFFIC STREAMS (3:30 PM AFTERSCHOOL CORRIDOR) -->
+    <!-- ========================================== -->
+    
+    <!-- Oncoming Straight Volume: Constant stream descending the blind hill crest -->
+    <flow id="oncoming_sedans" type="sedan" route="oncoming_straight" begin="0" end="3600" number="400"/>
+    <flow id="oncoming_trucks" type="truck" route="oncoming_straight" begin="0" end="3600" number="150"/>
+    <flow id="school_buses" type="school_bus" route="oncoming_straight" begin="10" end="3600" number="30"/>
+
+    <!-- Trigger Flows: Intermittent left-turning vehicles attempting to clear gaps -->
+    <flow id="left_turners" type="sedan" route="left_turn_path" begin="5" end="3600" number="80"/>
+
+    <!-- The Stochastic Hazard Actor: Random speeding vehicles over the crest -->
+    <!-- This replicates the exact operational breakdown that caused your collision -->
+    <flow id="reckless_actor" type="speeding_truck" route="oncoming_straight" begin="45" end="600" number="5"/>
+
+</routes>

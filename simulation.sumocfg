@@ -1,0 +1,11 @@
+<configuration xmlns:xsi="http://w3.org" xsi:noNamespaceSchemaLocation="http://dlr.de">
+    <input>
+        <net-file value="network/intersection.net.xml"/>
+        <route-files value="network/intersection.rou.xml"/>
+    </input>
+    <time>
+        <begin value="0"/>
+        <end value="3600"/>
+        <step-length value="0.1"/>
+    </time>
+</configuration>
