@@ -1,0 +1,6 @@
+<additional xmlns:xsi="http://w3.org" xsi:noNamespaceSchemaLocation="http://dlr.de">
+    <!-- Drop a virtual loop radar sensor across BOTH oncoming downhill lanes -->
+    <!-- Positioned exactly at y=40, which is the precise geometric peak of your blind crest -->
+    <inductionLoop id="crest_sensor_lane_0" lane="Crest2Center_0" pos="0.0" period="0.1" file="data_outputs/sensor_log.xml"/>
+    <inductionLoop id="crest_sensor_lane_1" lane="Crest2Center_1" pos="0.0" period="0.1" file="data_outputs/sensor_log.xml"/>
+</additional>
