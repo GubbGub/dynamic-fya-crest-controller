@@ -1,0 +1,34 @@
+Paired runs (same seed in both modes): 50
+Conflicts counted: free-flow only (crossing in progress, oncoming speed >= 8 m/s)
+
+H1  mean TTC per run: static 3.204 s, sensor-actuated 3.390 s
+    paired t = 11.070, p (one-sided, sensor > static) < 0.0001, d_z = 1.57
+
+H2  critical conflicts per run, defined as PET ≤ 1.5s: static 12.32, sensor-actuated 5.62
+    Wilcoxon p (one-sided, sensor < static) < 0.0001; paired t p < 0.0001; d_z = -2.07
+
+All candidate critical-conflict definitions (per run, static -> sensor-actuated, one-sided Wilcoxon p):
+    TTC <= 1.5 s     0.00 ->   0.00   p n/a
+    PET <= 1.5 s    12.32 ->   5.62   p < 0.0001
+    TTC <= 3 s      15.64 ->   5.78   p < 0.0001
+
+Cost of the controller:
+    left-turner mean delay (time loss): static 28.2 s -> sensor 31.3 s  (paired t, two-sided p < 0.0001; difference +3.2 s)
+    left arrow forced red: 2940 s per run; override triggered by 526 oncoming cars per run
+
+Left-turners released while a hidden car was on the approach: 79 of 80 per run
+Collisions detected (all runs): static 0, sensor-actuated 0
+
+============================================================
+REFERENCE: PROTECTED-ONLY LEFT TURNS (same cycle length, no permissive left)
+============================================================
+Protected runs: 50
+PET <= 1.5 s per run   static  12.32 | sensor-actuated   5.62 | protected   0.00
+                       sensor vs protected: two-sided Wilcoxon p < 0.0001   (paired t p < 0.0001)
+                       static vs protected: two-sided Wilcoxon p < 0.0001
+TTC <= 3 s per run     static  15.64 | sensor-actuated   5.78 | protected   0.00
+                       sensor vs protected: two-sided Wilcoxon p < 0.0001   (paired t p < 0.0001)
+                       static vs protected: two-sided Wilcoxon p < 0.0001
+mean TTC               static   3.20 | sensor-actuated   3.39 | protected: no free-flow conflicts in 48 of 50 runs, so no mean to compare
+left-turner delay (s)  static   28.2 | sensor-actuated   31.3 | protected   54.8   (sensor vs protected p < 0.0001)
+other vehicles delay (s) static   21.0 | sensor-actuated   15.9 | protected   32.1   (seeds 101-150, 50 runs each)
