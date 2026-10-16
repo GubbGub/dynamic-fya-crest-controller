@@ -1,5 +1,8 @@
 <additional xmlns:xsi="http://w3.org" xsi:noNamespaceSchemaLocation="http://dlr.de">
-    <!-- SUMO resolves these paths relative to the XML file's directory (network/), so go up one level to the project root's data_outputs folder -->
-    <inductionLoop id="crest_sensor_lane_0" lane="Crest2Center_0" pos="0.0" period="0.1" file="../data_outputs/sensor_log_0.xml"/>
-    <inductionLoop id="crest_sensor_lane_1" lane="Crest2Center_1" pos="0.0" period="0.1" file="../data_outputs/sensor_log_1.xml"/>
+    <!-- Loops sit UPSTREAM of the crest on N2Crest, about 100 m before the stop line (N2Crest is 97.84 m,
+         Crest2Center is 41.90 m, so pos = 97.84 + 41.90 - 100 = 39.74).
+         That is farther than any driver can see over the crest (77 m for a sedan), so the sensor sees what the driver cannot.
+         file="/dev/null" because TraCI reads the loops directly (no giant XML logs). Use "NUL" on Windows. -->
+    <inductionLoop id="upstream_sensor_lane_0" lane="N2Crest_0" pos="39.74" file="/dev/null"/>
+    <inductionLoop id="upstream_sensor_lane_1" lane="N2Crest_1" pos="39.74" file="/dev/null"/>
 </additional>

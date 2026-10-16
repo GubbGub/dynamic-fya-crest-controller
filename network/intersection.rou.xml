@@ -17,11 +17,27 @@
     <!-- High-Risk Reckless/Speeding Class (The Accident Scenario) -->
     <!-- Disregards the 45 MPH baseline, crossing the crest at 55-60 MPH -->
     <vType id="speeding_truck" vClass="truck" length="5.80" width="2.00" height="1.90" 
-           maxSpeed="26.82" speedDev="0.0" sigma="0.2" carFollowModel="IDM" color="1,0,0"/>
+           maxSpeed="26.82" speedFactor="1.33" speedDev="0.0" sigma="0.2" carFollowModel="IDM" color="1,0,0"/>
 
     <!-- Heavy Institutional School Transport Class -->
     <vType id="school_bus" vClass="bus" length="12.00" width="2.50" height="3.20" 
            maxSpeed="17.88" speedDev="0.05" sigma="0.7" carFollowModel="IDM"/>
+
+    <!-- ========================================== -->
+    <!-- SPEED MIX (from the notes' Speed Distribution Model)                      -->
+    <!-- Speed limit is 45 mph = 20.11 m/s. speedFactor = target speed / limit.     -->
+    <!--   80% drive the limit (45), 15% drive 55 mph, 5% drive 65 mph               -->
+    <!-- ========================================== -->
+    <vTypeDistribution id="sedan_mix">
+        <vType id="sedan_45" probability="0.80" vClass="passenger" length="4.80" width="1.80" height="1.40" maxSpeed="20.11" speedDev="0.10" sigma="0.5" carFollowModel="IDM"/>
+        <vType id="sedan_55" probability="0.15" vClass="passenger" length="4.80" width="1.80" height="1.40" maxSpeed="26.00" speedFactor="1.2227" speedDev="0.05" sigma="0.5" carFollowModel="IDM"/>
+        <vType id="sedan_65" probability="0.05" vClass="passenger" length="4.80" width="1.80" height="1.40" maxSpeed="30.50" speedFactor="1.4450" speedDev="0.05" sigma="0.5" carFollowModel="IDM"/>
+    </vTypeDistribution>
+    <vTypeDistribution id="truck_mix">
+        <vType id="truck_45" probability="0.80" vClass="truck" length="5.80" width="2.00" height="1.90" maxSpeed="20.11" speedDev="0.10" sigma="0.5" carFollowModel="IDM"/>
+        <vType id="truck_55" probability="0.15" vClass="truck" length="5.80" width="2.00" height="1.90" maxSpeed="26.00" speedFactor="1.2227" speedDev="0.05" sigma="0.5" carFollowModel="IDM"/>
+        <vType id="truck_65" probability="0.05" vClass="truck" length="5.80" width="2.00" height="1.90" maxSpeed="30.50" speedFactor="1.4450" speedDev="0.05" sigma="0.5" carFollowModel="IDM"/>
+    </vTypeDistribution>
 
     <!-- ========================================== -->
     <!-- EDGE ROUTE MAPS                            -->
@@ -42,15 +58,17 @@
     <!-- ========================================== -->
     
     <!-- Oncoming Straight Volume: Constant stream descending the blind hill crest -->
-    <flow id="oncoming_sedans" type="sedan" route="oncoming_straight" begin="0" end="3600" number="400"/>
-    <flow id="oncoming_trucks" type="truck" route="oncoming_straight" begin="0" end="3600" number="150"/>
-    <flow id="school_buses" type="school_bus" route="oncoming_straight" begin="10" end="3600" number="30"/>
 
     <!-- Trigger Flows: Intermittent left-turning vehicles attempting to clear gaps -->
-    <flow id="left_turners" type="sedan" route="left_turn_path" begin="5" end="3600" number="80"/>
 
     <!-- The Stochastic Hazard Actor: Random speeding vehicles over the crest -->
     <!-- This replicates the exact operational breakdown that caused your collision -->
-    <flow id="reckless_actor" type="speeding_truck" route="oncoming_straight" begin="45" end="600" number="5"/>
+
+    <!-- Flows must be sorted by 'begin' time or SUMO silently ignores the later ones -->
+    <flow id="oncoming_sedans" type="sedan_mix" route="oncoming_straight" begin="0" end="3600" number="400" departSpeed="max"/>
+    <flow id="oncoming_trucks" type="truck_mix" route="oncoming_straight" begin="0" end="3600" number="150" departSpeed="max"/>
+    <flow id="left_turners" type="sedan" route="left_turn_path" begin="5" end="3600" number="80"/>
+    <flow id="school_buses" type="school_bus" route="oncoming_straight" begin="10" end="3600" number="30" departSpeed="max"/>
+    <flow id="reckless_actor" type="speeding_truck" route="oncoming_straight" begin="45" end="600" number="5" departSpeed="max"/>
 
 </routes>
